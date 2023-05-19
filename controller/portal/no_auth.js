@@ -5,7 +5,7 @@ var jwt = require('jsonwebtoken');
 var fs = require('fs');
 var path = require("path");
 require('dotenv/config');
-const private_key  = fs.readFileSync(path.join(__dirname,'../keys/private.key'), 'utf8');
+const private_key  = fs.readFileSync(path.join(__dirname,'../../keys/private.key'), 'utf8');
 
 async function generate_token(user_id)
 {
@@ -74,18 +74,28 @@ function signup(req,res)
     .then((data1)=>{
         if(data1 == null)
         {   
-            create_user({
-                email: req_body.email,
-                first_name: req_body.first_name,
-                last_name: req_body.last_name,
-                password: req_body.password
-            })
-            .then((data)=>{
-                res.status(200).json(data.response);
-            })
-            .catch((error)=>{
-                res.status(error.status).json(error.response);
-            })
+            if(req_body.type == "GENERAL" || req_body.type == "ROOT")
+            {
+                create_user({
+                    email: req_body.email,
+                    first_name: req_body.first_name,
+                    last_name: req_body.last_name,
+                    password: req_body.password,
+                    type: req_body.type
+                })
+                .then((data)=>{
+                    res.status(200).json(data.response);
+                })
+                .catch((error)=>{
+                    res.status(error.status).json(error.response);
+                })
+            }
+            else
+            {
+                res.status(400).json({
+                    message: "Invalid admin type"
+                })
+            }
         }
         else
         {

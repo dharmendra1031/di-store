@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
 const deal = mongoose.Schema({
+    store:{type:String},
     name: {type:String},
+    name_arabic: {type:String},
     image: {type:String},
     description: {type:String},
+    description_arabic: {type:String},
+    used_times: {type:Number},
+    last_used: {type:String},
     coupon:{type:String},
     link: {type:String},
     tags: {type:Array}

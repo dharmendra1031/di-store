@@ -10,6 +10,7 @@ const deal = mongoose.Schema({
     last_used: {type:String},
     coupon:{type:String},
     link: {type:String},
-    tags: {type:Array}
+    tags: {type:Array},
+    index: {type:Number, default:1},
 });
 module.exports = mongoose.model("deal",deal);

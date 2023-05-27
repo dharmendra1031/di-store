@@ -41,7 +41,7 @@ function authenticate(req,res,next)
                 }
                 else
                 {
-                  req.middleware = {user_id: data.user_id};
+                  req.middleware = {user_id: data.user_id, country: data.country};
                   next();
                 }
             })

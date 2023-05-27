@@ -86,7 +86,8 @@ function signup(req,res)
                     phone_number_verified: false,
                     first_name: req_body.first_name,
                     last_name: req_body.last_name,
-                    password: req_body.password
+                    password: req_body.password,
+                    country: req_body.country
                 })
                 .then((data)=>{
                     res.status(200).json(data.response);
@@ -243,11 +244,11 @@ function login(req,res)
 
 function fetch_home(req,res)
 {
-    var req_body=req.query;
-    var search = {country: req_body.country};
+    var search = {country: req.query.country};
     var temp_store_ids = [];
 
     store.find(search)
+    .sort({index:0})
     .then((data1)=>{
         var numberOfLoop = data1.length;
 
@@ -256,8 +257,9 @@ function fetch_home(req,res)
             temp_store_ids.push((data1[index1]._id).toString());
             loop1.next();
         },function(){
-            console.log(temp_store_ids);
+
             deal.find({store:{$in:temp_store_ids}})
+            .sort({index:0})
             .then((data2)=>{
                 res.status(200).json({message:"Success", stores:data1, deals:data2});
             })
@@ -281,6 +283,7 @@ function fetch_brands(req,res)
     var search = {country: req_body.country};
 
     store.find(search)
+    .sort({index:0})
     .then((data1)=>{ 
         res.status(200).json({message:"Success", brands:data1});
     })
@@ -291,7 +294,44 @@ function fetch_brands(req,res)
     })
 }
 
+function fetch_deals(req,res)
+{
+    var search = {country: req.query.country};
+    var temp_store_ids = [];
+
+    store.find(search)
+    .then((data1)=>{
+        var numberOfLoop = data1.length;
+
+        syncLoop(numberOfLoop, function(loop1){
+            var index1 = loop1.iteration();
+            temp_store_ids.push((data1[index1]._id).toString());
+            loop1.next();
+        },function(){
+            deal.find({store:{$in:temp_store_ids}})
+            .sort({index:0})
+            .then((data2)=>{
+                res.status(200).json({message:"Success", deals:data2});
+            })
+            .catch((error)=>{
+                res.status(500).json({
+                    error:error
+                })
+            })
+        })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function fetch_file(req,res)
+{
+    res.sendFile(path.join(__dirname + process.env.READ_STORAGE_PATH + "/" + req.params.file));
+}
 
 module.exports = {
-    signup, login, fetch_home, fetch_brands
+    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file
 }

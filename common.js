@@ -1,6 +1,6 @@
 const sg_mail = require('@sendgrid/mail');
 require('dotenv/config');
-
+const generateUniqueId = require('generate-unique-id');
 
 
 sg_mail.setApiKey(process.env.SEND_GRID_APIKEY);
@@ -33,6 +33,19 @@ async function send_email(email, subject, message)
     })
 }
 
+
+async function generate_name()
+{
+    return new Promise((resolve,rejecgt)=>{
+        var temp = generateUniqueId({
+            length: 15,
+            useLetters: true,
+            useNumbers:false
+          })
+        resolve(temp);
+    });
+}
+
 module.exports = {
-    send_email
+    send_email, generate_name
 }

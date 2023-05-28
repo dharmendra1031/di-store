@@ -1,5 +1,7 @@
 const store = require("../../model/store");
 const deal = require("../../model/deal");
+const country = require("../../model/country");
+
 
 var fs = require('fs');
 var path = require("path");
@@ -34,7 +36,10 @@ function create_store(req,res)
         })
         obj.save()
         .then((data)=>{
-            res.status(200).json({message:"Success"});
+            res.status(200).json({
+                message: "Success",
+                store: data
+            });
         })
         .catch((error)=>{
             res.status(500).json({
@@ -90,14 +95,16 @@ function create_deal(req,res)
                 })
                 obj.save()
                 .then((data)=>{
-                    res.status(200).json({message:"Success"});
+                    res.status(200).json({
+                        message:"Success",
+                        deal: data
+                    });
                 })
                 .catch((error)=>{
                     res.status(500).json({
                         error:error
                     })
                 })
-                
             })
             .catch((error)=>{
                 res.status(500).json({
@@ -155,6 +162,76 @@ function fetch_deal(req,res)
 }
 
 
+function remove_store(req,res)
+{
+    var req_body = req.body;
+
+    store.findOneAndDelete({_id: req_body.store})
+    .then((data1)=>{
+        deal.deleteMany({store: req_body.store})
+        .then((data2)=>{
+            res.status(200).json({message:"Success"});
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function remove_deal(req,res)
+{
+    var req_body = req.body;
+
+    deal.findOneAndDelete({_id: req_body.deal})
+    .then((data2)=>{
+        res.status(200).json({message:"Success"});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })        
+    })
+}
+
+function create_country(req,res)
+{
+    var req_body = req.body;
+
+    const obj = new country({
+        name: req_body.name
+    })
+
+    obj.save()
+    .then((data)=>{
+        res.status(200).json({message:"Success"});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })   
+    })
+}
+
+function fetch_country(req,res)
+{
+    country.find({},{name:1, _id:0})
+    .then((data)=>{
+        res.status(200).json({message:"Success", countries:data});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })   
+    })
+}
+
 module.exports = {
-    create_store, create_deal, fetch_store, fetch_deal
+    create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, create_country, fetch_country
 }

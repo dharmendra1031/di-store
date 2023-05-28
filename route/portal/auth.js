@@ -126,5 +126,9 @@ router.post("/create-deal", controller_auth.create_deal);
 router.post("/create-store", controller_auth.create_store);
 router.get("/store", controller_auth.fetch_store);
 router.get("/deal", controller_auth.fetch_deal);
+router.post("/remove-deal", controller_auth.remove_deal);
+router.post("/remove-store", controller_auth.remove_store);
+router.post("/create-country", controller_auth.create_country);
+router.get("/country", controller_auth.fetch_country);
 
 module.exports = router;

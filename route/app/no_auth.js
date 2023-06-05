@@ -11,5 +11,6 @@ router.get("/home", controller_no_auth.fetch_home);
 router.get("/brand", controller_no_auth.fetch_brands);
 router.get("/deals", controller_no_auth.fetch_deals);
 router.get("/file/:file", controller_no_auth.fetch_file)
+router.get("/country", controller_no_auth.fetch_country);
 
 module.exports = router;

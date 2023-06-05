@@ -23,7 +23,8 @@ function fetch_profile(req,res)
             phone_number_verified: data1.phone_number_verified,
             first_name: data1.first_name,
             last_name: data1.last_name,
-            country: data1.country
+            country: data1.country,
+            profile_image: data1.profile_image
         }});
     })
     .catch((error)=>{

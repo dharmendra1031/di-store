@@ -1,6 +1,7 @@
 const user = require("../../model/user");
 const store = require("../../model/store");
 const deal = require("../../model/deal");
+const country = require("../../model/country");
 
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
@@ -332,6 +333,20 @@ function fetch_file(req,res)
     res.sendFile(path.join(__dirname + process.env.READ_STORAGE_PATH + "/" + req.params.file));
 }
 
+
+function fetch_country(req,res)
+{
+    country.find({},{name:1, _id:0})
+    .then((data)=>{
+        res.status(200).json({message:"Success", countries:data});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })   
+    })
+}
+
 module.exports = {
-    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file
+    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country
 }

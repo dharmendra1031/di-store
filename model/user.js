@@ -8,6 +8,7 @@ const user = mongoose.Schema({
     first_name: {type:String},
     last_name: {type:String},
     password: {type:String},
-    country: {type:String}
+    country: {type:String},
+    profile_image: {type:String, default:null}
 });
 module.exports = mongoose.model("user",user);

@@ -2,6 +2,8 @@ const user = require("../../model/user");
 const store = require("../../model/store");
 const deal = require("../../model/deal");
 const country = require("../../model/country");
+const banner = require("../../model/banner");
+
 
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
@@ -278,6 +280,20 @@ function fetch_home(req,res)
     })
 }
 
+function fetch_banner(req,res)
+{    
+    banner.findOne({type: "BANNER"})
+    .then((data1)=>{
+        res.status(200).json({message:"Success", banner:data1});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
 function fetch_brands(req,res)
 {
     var req_body=req.query;
@@ -348,5 +364,5 @@ function fetch_country(req,res)
 }
 
 module.exports = {
-    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country
+    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner
 }

@@ -2,9 +2,10 @@ const store = require("../../model/store");
 const deal = require("../../model/deal");
 const country = require("../../model/country");
 
-
+var syncLoop = require('sync-loop');
 var fs = require('fs');
 var path = require("path");
+
 require('dotenv/config');
 
 
@@ -162,6 +163,52 @@ function fetch_deal(req,res)
 }
 
 
+function fetch_all_store(req,res)
+{
+    store.find({})
+    .then((data1)=>{
+        res.status(200).json({message:"Success", store:data1});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function fetch_all_deal(req,res)
+{
+    var response = [];
+    deal.find({})
+    .then((data1)=>{
+        syncLoop(data1.length, function(loop1){
+            var index1 = loop1.iteration();
+            store.findOne({_id:(data1[index1].store).toString()})
+            .then((data2)=>{
+                response.push({
+                    deal:data1[index1],
+                    store:data2
+                })
+                loop1.next();
+            })
+            .catch((error)=>{
+                console.log(error);
+                res.status(500).json({
+                    error:error
+                })
+            })
+        },function(){
+            res.status(200).json({message:"Success", deal:response});
+        })
+    })
+    .catch((error)=>{
+        console.log(error);
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
 function remove_store(req,res)
 {
     var req_body = req.body;
@@ -184,6 +231,53 @@ function remove_store(req,res)
         })
     })
 }
+
+function remove_country(req,res)
+{
+    var req_body = req.body;
+    var stores = [];
+
+    country.findOneAndDelete({name: req_body.name})
+    .then(()=>{
+        store.find({country: req_body.name})
+        .then((data2)=>{
+            syncLoop(data2.length, function(loop1){
+                var index1 = loop1.iteration();
+                stores.push((data2[index1]._id).toString());
+                loop1.next();
+            },function(){
+                store.deleteMany({country: req_body.name})
+                .then((data1)=>{
+                    deal.deleteMany({store: stores})
+                    .then((data2)=>{
+                        res.status(200).json({message:"Success"});
+                    })
+                    .catch((error)=>{
+                        res.status(500).json({
+                            error:error
+                        })
+                    })
+                })
+                .catch((error)=>{
+                    res.status(500).json({
+                        error:error
+                    })
+                })
+            })
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
 
 function remove_deal(req,res)
 {
@@ -233,5 +327,5 @@ function fetch_country(req,res)
 }
 
 module.exports = {
-    create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, create_country, fetch_country
+    create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, remove_country, create_country, fetch_country, fetch_all_store, fetch_all_deal
 }

@@ -7,6 +7,53 @@ const multer = require("multer");
 const path = require("path");
 const store = require("../../model/store");
 const deal = require("../../model/deal");
+const banner = require("../../model/banner");
+
+function upload_banner(req,res)
+{
+    if(req.response.status == 200)
+    {
+        banner.findOneAndUpdate({type:"BANNER"}, {$set:{image: process.env.READ_FILE_URL + req.response.image_name}})
+        .then((data1)=>{
+            if(data1 == null)
+            {
+                const obj = new banner({
+                    type: "BANNER",
+                    image: process.env.READ_FILE_URL + req.response.image_name
+                })
+                obj.save()
+                .then(()=>{
+                    res.status(200).json({
+                        message:"Success"
+                    });
+                })
+                .catch((error)=>{
+                    res.status(500).json({
+                        error:error
+                    })
+                })
+            }
+            else
+            {
+                res.status(200).json({
+                    message:"Success"
+                });
+            }
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    }
+    else
+    {
+        res.status(req.response.status).json({
+            message:req.response.description
+        })
+    }
+    
+}
 
 function upload_store_logo(req,res)
 {
@@ -121,6 +168,10 @@ router.post('/upload-deal-image', function(req,res,next){
     next();
 }, upload_file, upload_deal_image);
 
+router.post('/upload-banner', function(req,res,next){
+    next();
+}, upload_file, upload_banner);
+
 
 router.post("/create-deal", controller_auth.create_deal);
 router.post("/create-store", controller_auth.create_store);
@@ -128,7 +179,11 @@ router.get("/store", controller_auth.fetch_store);
 router.get("/deal", controller_auth.fetch_deal);
 router.post("/remove-deal", controller_auth.remove_deal);
 router.post("/remove-store", controller_auth.remove_store);
+router.post("/remove-country", controller_auth.remove_country);
 router.post("/create-country", controller_auth.create_country);
 router.get("/country", controller_auth.fetch_country);
+router.get("/all/store", controller_auth.fetch_all_store);
+router.get("/all/deal", controller_auth.fetch_all_deal);
+
 
 module.exports = router;

@@ -13,6 +13,6 @@ router.get("/deals", controller_no_auth.fetch_deals);
 router.get("/file/:file", controller_no_auth.fetch_file)
 router.get("/country", controller_no_auth.fetch_country);
 router.get("/banner", controller_no_auth.fetch_banner);
-
+router.get("/all-deals", controller_no_auth.fetch_all_deal);
 
 module.exports = router;

@@ -86,4 +86,5 @@ router.post('/upload-profile-image', function(req,res,next){
 router.get("/profile", controller_auth.fetch_profile);
 router.post("/update-profile", controller_auth.update_profile);
 
+
 module.exports = router;

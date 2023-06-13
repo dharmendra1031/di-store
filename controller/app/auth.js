@@ -50,7 +50,6 @@ function update_profile(req,res)
     })
 }
 
-
 module.exports = {
     fetch_profile, update_profile
 }

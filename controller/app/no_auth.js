@@ -364,30 +364,13 @@ function fetch_country(req,res)
 }
 
 
-function fetch_all_deal(req,res)
+function fetch_store_deals(req,res)
 {
-    var response = [];
-
-    deal.find({})
+    var req_body=req.query;
+    
+    deal.find({store: req_body.store})
     .then((data1)=>{
-        syncLoop(data1.length, function(loop1){
-            var index1 = loop1.iteration();
-            store.findOne({_id:(data1[index1].store).toString()})
-            .then((data2)=>{
-                response.push({
-                    deal: data1[index1],
-                    store: data2
-                })
-                loop1.next();
-            })
-            .catch((error)=>{
-                res.status(500).json({
-                    error:error
-                })
-            })
-        },function(){
-            res.status(200).json({message:"Success", deal:response});
-        })
+        res.status(200).json({message:"Success", deal:data1});
     })
     .catch((error)=>{
         res.status(500).json({
@@ -396,7 +379,6 @@ function fetch_all_deal(req,res)
     })
 }
 
-
 module.exports = {
-    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_all_deal
+    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_store_deals
 }

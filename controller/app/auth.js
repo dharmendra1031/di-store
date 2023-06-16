@@ -50,6 +50,36 @@ function update_profile(req,res)
     })
 }
 
+function fetch_referral_details(req,res)
+{
+    user.findOne({_id:req.middleware.user_id})
+    .then((data1)=>{
+        if(data1 == null)
+        {
+            res.status(404).json({
+                message:"User Not Found"
+            })
+        }
+        else
+        {
+            res.status(200).json({
+                message:"Success",
+                referral_details:{
+                    referral_code: data1.referral_code,
+                    referral_points: data1.referral_points,
+                    referral_link: process.env.REFERRAL_LINK + data1.referral_code
+                }
+            })
+        }
+        
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
 module.exports = {
-    fetch_profile, update_profile
+    fetch_profile, update_profile, fetch_referral_details
 }

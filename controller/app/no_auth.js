@@ -3,7 +3,7 @@ const store = require("../../model/store");
 const deal = require("../../model/deal");
 const country = require("../../model/country");
 const banner = require("../../model/banner");
-
+const common = require("../../common");
 
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
@@ -11,6 +11,7 @@ var path = require("path");
 require('dotenv/config');
 const private_key  = fs.readFileSync(path.join(__dirname,'../../keys/private.key'), 'utf8');
 var syncLoop = require('sync-loop');
+const referral_storage = require("../../model/referral_storage");
 
 async function generate_token(user_id)
 {
@@ -70,9 +71,41 @@ async function create_user(input)
     })
 }
 
+async function assign_referrer(ip)
+{
+    return new Promise((resolve,reject)=>{
+        referral_storage.findOneAndDelete({ip:ip})
+        .then((data1)=>{
+            if(data1 == null)
+            {
+                resolve({
+                    user_id: null
+                });
+            }
+            else
+            {
+                user.findOneAndUpdate({referral_code: data1.referral_code}, {$inc:{referral_points:parseInt(process.env.REFERRAL_POINT)}})
+                .then((data2)=>{
+                    resolve({
+                        user_id: (data2._id).toString()
+                    });
+                })
+                .catch((error)=>{
+                    console.log(error);
+                    reject(error);
+                })
+            }
+        })
+        .catch((error)=>{
+            console.log(error);
+            reject(error);
+        })
+    })
+}
 
 function signup(req,res)
 {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     var req_body=req.body;
 
     if(req_body.email != null)
@@ -81,22 +114,41 @@ function signup(req,res)
         .then((data1)=>{
             if(data1 == null)
             {   
-                create_user({
-                    country_code: null,
-                    phone_number: null,
-                    email: req_body.email,
-                    email_verified: false,
-                    phone_number_verified: false,
-                    first_name: req_body.first_name,
-                    last_name: req_body.last_name,
-                    password: req_body.password,
-                    country: req_body.country
-                })
-                .then((data)=>{
-                    res.status(200).json(data.response);
+                assign_referrer(ip)
+                .then((refer_obj)=>{
+                    common.generate_referral_code()
+                    .then((referral_code)=>{
+                        create_user({
+                            country_code: null,
+                            phone_number: null,
+                            email: req_body.email,
+                            email_verified: false,
+                            phone_number_verified: false,
+                            referrer: refer_obj.user_id,
+                            referral_code: referral_code,
+                            referral_points: 0,
+                            first_name: req_body.first_name,
+                            last_name: req_body.last_name,
+                            password: req_body.password,
+                            country: req_body.country
+                        })
+                        .then((data)=>{
+                            res.status(200).json(data.response);
+                        })
+                        .catch((error)=>{
+                            res.status(error.status).json(error.response);
+                        })
+                    })
+                    .catch((error)=>{
+                        res.status(500).json({
+                            error:error
+                        })
+                    })
                 })
                 .catch((error)=>{
-                    res.status(error.status).json(error.response);
+                    res.status(500).json({
+                        error:error
+                    })
                 })
             }
             else
@@ -126,21 +178,42 @@ function signup(req,res)
             .then((data1)=>{
                 if(data1 == null)
                 {   
-                    create_user({
-                        country_code: req_body.country_code,
-                        phone_number: req_body.phone_number,
-                        email: null,
-                        email_verified: false,
-                        phone_number_verified: true,
-                        first_name: req_body.first_name,
-                        last_name: req_body.last_name,
-                        password: null
-                    })
-                    .then((data)=>{
-                        res.status(200).json(data.response);
+                    assign_referrer(ip)
+                    .then((refer_obj)=>{
+                        common.generate_referral_code()
+                        .then((referral_code)=>{
+                            create_user({
+                                country_code: req_body.country_code,
+                                phone_number: req_body.phone_number,
+                                email: null,
+                                email_verified: false,
+                                phone_number_verified: true,
+                                referrer: refer_obj.user_id,
+                                referral_code: referral_code,
+                                referral_points: 0,
+                                first_name: req_body.first_name,
+                                last_name: req_body.last_name,
+                                password: null,
+                                country: req_body.country
+                            })
+                            .then((data)=>{
+                                res.status(200).json(data.response);
+                            })
+                            .catch((error)=>{
+                                console.log(error);
+                                res.status(error.status).json(error.response);
+                            })
+                        })
+                        .catch((error)=>{
+                            res.status(500).json({
+                                error:error
+                            })
+                        })
                     })
                     .catch((error)=>{
-                        res.status(error.status).json(error.response);
+                        res.status(500).json({
+                            error:error
+                        })
                     })
                 }
                 else
@@ -157,7 +230,6 @@ function signup(req,res)
             })
         }
     }
-    
 }
 
 function login(req,res)
@@ -379,6 +451,52 @@ function fetch_store_deals(req,res)
     })
 }
 
+function referral_link_clicked(req,res)
+{
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    console.log(req.get('User-Agent'));
+
+    user.findOne({referral_code:req.params.referral_code})
+    .then((data1)=>{
+        if(data1 == null)
+        {
+            if(req.get('User-Agent') == "iPad" || req.get('User-Agent') == "iPhone" || req.get('User-Agent') == "iPod")
+                res.redirect(process.env.APPSTORE_LINK);
+            else
+                res.redirect(process.env.PLAYSTORE_LINK);
+        }
+        else
+        {
+            const obj = referral_storage({
+                referral_code: req.params.referral_code,
+                ip: ip,
+                created_at: new Date()
+            })
+            obj.save()
+            .then(()=>{
+                if(req.get('User-Agent') == "iPad" || req.get('User-Agent') == "iPhone" || req.get('User-Agent') == "iPod")
+                    res.redirect(process.env.APPSTORE_LINK);
+                else
+                    res.redirect(process.env.PLAYSTORE_LINK);
+            })
+            .catch((error)=>{
+                console.log(error);
+                res.status(500).json({
+                    error:error
+                })
+            })
+        }
+    })
+    .catch((error)=>{
+        console.log(error);
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
 module.exports = {
-    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_store_deals
+    signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_store_deals,
+    referral_link_clicked
 }

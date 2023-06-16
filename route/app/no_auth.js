@@ -14,6 +14,6 @@ router.get("/file/:file", controller_no_auth.fetch_file)
 router.get("/country", controller_no_auth.fetch_country);
 router.get("/banner", controller_no_auth.fetch_banner);
 router.get("/store/deals", controller_no_auth.fetch_store_deals);
-
+router.get("/refer/:referral_code", controller_no_auth.referral_link_clicked)
 
 module.exports = router;

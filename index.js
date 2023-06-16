@@ -57,12 +57,13 @@ function authenticate(req,res,next)
 function authenticate_portal(req,res,next)
 {
     var header = req.headers;
-     
+    console.log(header);
     jwt.verify(header.token, public_key, function(error,data){
         if(error)
             res.status(401).json({message:"Unauthorized"})
         else
         {
+          console.log(data);
           admin.findOne({_id: data.user_id})
             .then((data1)=>{
                 if(data1 == null)
@@ -84,7 +85,9 @@ function authenticate_portal(req,res,next)
     })
 }
 
+
 API.use(cors());
+
 API.use(bodyParser.json({limit: "50mb"}));
 
 

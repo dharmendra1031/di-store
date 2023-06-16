@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const user = mongoose.Schema({
     email: {type:String},
+    referrer:{type:String, default:null},
+    referral_code: {type:String},
+    referral_points:{type:Number, default:0},
     email_verified: {type:Boolean, default:false},
     phone_number: {type:String},
     country_code: {type:String},

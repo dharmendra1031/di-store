@@ -36,7 +36,7 @@ async function send_email(email, subject, message)
 
 async function generate_name()
 {
-    return new Promise((resolve,rejecgt)=>{
+    return new Promise((resolve,reject)=>{
         var temp = generateUniqueId({
             length: 15,
             useLetters: true,
@@ -46,6 +46,18 @@ async function generate_name()
     });
 }
 
+async function generate_referral_code()
+{
+    return new Promise((resolve,reject)=>{
+        var temp = generateUniqueId({
+            length: 10,
+            useLetters: true,
+            useNumbers:false
+          })
+        resolve(temp);
+    });
+}
+
 module.exports = {
-    send_email, generate_name
+    send_email, generate_name, generate_referral_code
 }

@@ -63,7 +63,6 @@ function authenticate_portal(req,res,next)
             res.status(401).json({message:"Unauthorized"})
         else
         {
-          console.log(data);
           admin.findOne({_id: data.user_id})
             .then((data1)=>{
                 if(data1 == null)
@@ -86,6 +85,12 @@ function authenticate_portal(req,res,next)
 }
 
 API.options('*', cors());
+API.use((req,res,next)=>{
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
+  res.setHeader('Access-Control-Allow-Methods','Content-Type','Authorization');
+  next(); 
+})
 
 API.use(bodyParser.json({limit: "50mb"}));
 

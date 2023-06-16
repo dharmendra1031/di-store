@@ -85,11 +85,7 @@ function authenticate_portal(req,res,next)
     })
 }
 
-
-API.use(cors({
-  origin: '*',
-  allowedHeaders: 'X-Requested-With, Content-Type, auth-token, Authorization'
-}));
+API.options('*', cors());
 
 API.use(bodyParser.json({limit: "50mb"}));
 

@@ -184,6 +184,6 @@ router.post("/create-country", controller_auth.create_country);
 router.get("/country", controller_auth.fetch_country);
 router.get("/all/store", controller_auth.fetch_all_store);
 router.get("/all/deal", controller_auth.fetch_all_deal);
-
+router.get("/users", controller_auth.fetch_users);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const country = require("../../model/country");
 var syncLoop = require('sync-loop');
 var fs = require('fs');
 var path = require("path");
+const user = require("../../model/user");
 
 require('dotenv/config');
 
@@ -326,6 +327,21 @@ function fetch_country(req,res)
     })
 }
 
+
+function fetch_users(req,res)
+{
+    user.find({},{password:0})
+    .then((data)=>{
+        res.status(200).json({message:"Success", users:data});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })   
+    })
+}
+
 module.exports = {
-    create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, remove_country, create_country, fetch_country, fetch_all_store, fetch_all_deal
+    create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, remove_country, create_country, fetch_country, fetch_all_store, fetch_all_deal,
+    fetch_users
 }

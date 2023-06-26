@@ -244,6 +244,8 @@ router.post("/update-deal", controller_auth.update_deal);
 router.get("/banner", controller_auth.fetch_banner);
 router.get("/delete/banner", controller_auth.delete_banner);
 router.post("/create-carousel", controller_auth.create_carousel);
+router.post("/delete-carousel", controller_auth.delete_carousel);
+router.post("/update-carousel", controller_auth.update_carousel);
 router.get("/carousel", controller_auth.fetch_carousel);
 
 module.exports = router;

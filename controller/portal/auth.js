@@ -49,6 +49,38 @@ function create_carousel(req,res)
     })
 }
 
+function delete_carousel(req,res)
+{
+    var req_body = req.body;
+
+    carousel.findOneAndDelete({_id:req_body.carousel_id})
+    .then((data1)=>{
+        res.status(200).json({message:"Success"});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
+function update_carousel(req,res)
+{
+    var req_body = req.body;
+
+    carousel.findOneAndUpdate({_id:req_body.carousel_id}, {$set:{header:req_body.header}})
+    .then((data1)=>{
+        res.status(200).json({message:"Success"});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
 function fetch_carousel(req,res)
 {
     carousel.find()
@@ -497,5 +529,6 @@ function fetch_users(req,res)
 
 module.exports = {
     create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, remove_country, create_country, fetch_country, fetch_all_store, fetch_all_deal,
-    fetch_users, update_country, update_store, update_deal, delete_banner, fetch_banner, create_carousel, fetch_carousel
+    fetch_users, update_country, update_store, update_deal, delete_banner, fetch_banner, create_carousel, fetch_carousel, update_carousel,
+    delete_carousel
 }

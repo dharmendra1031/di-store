@@ -1,6 +1,8 @@
 const store = require("../../model/store");
 const deal = require("../../model/deal");
 const country = require("../../model/country");
+const banner = require("../../model/banner");
+const carousel = require("../../model/carousel");
 
 var syncLoop = require('sync-loop');
 var fs = require('fs');
@@ -9,6 +11,86 @@ const user = require("../../model/user");
 
 require('dotenv/config');
 
+function create_carousel(req,res)
+{
+    var req_body = req.body;
+
+    carousel.aggregate([
+        {$group:{_id:null, max_index:{$max:"$index"}}}
+    ])
+    .then((data1)=>{
+        var new_index = 1;
+        if(data1.length == 0)
+        {
+            new_index = 1;
+        }
+        else
+        {
+            new_index = data1[0].max_index + 1;
+        }
+        const obj = carousel({
+            header: req_body.header,
+            index: new_index
+        })
+        obj.save()
+        .then(()=>{
+            res.status(200).json({message:"Success"});
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function fetch_carousel(req,res)
+{
+    carousel.find()
+    .sort({index:0})
+    .then((data1)=>{
+        res.status(200).json({message:"Success", carousel:data1});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
+function fetch_banner(req,res)
+{    
+    banner.find()
+    .sort({index:0})
+    .then((data1)=>{
+        res.status(200).json({message:"Success", banner:data1});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
+function delete_banner(req,res)
+{    
+    banner.findOneAndDelete({_id:req.query.banner_id})
+    .then((data1)=>{
+        res.status(200).json({message:"Success"});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
 
 function create_store(req,res)
 {
@@ -48,6 +130,31 @@ function create_store(req,res)
                 error:error
             })
         })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function update_store(req,res)
+{
+    var req_body=req.body;
+
+    store.findOneAndUpdate({_id:req_body.store_id}, {
+        $set:{
+            country: req_body.country,
+            name: req_body.name,
+            name_arabic: req_body.name_arabic,
+            link: req_body.link,
+            tags: req_body.tags
+        }
+    })
+    .then((data1)=>{
+        res.status(200).json({
+            message: "Success"
+        });
     })
     .catch((error)=>{
         res.status(500).json({
@@ -122,6 +229,34 @@ function create_deal(req,res)
     })
 }
 
+function update_deal(req,res)
+{
+    var req_body=req.body;
+
+    deal.findOneAndUpdate({_id:req_body.deal_id}, {
+        $set:{
+            name: req_body.name,
+            name_arabic: req_body.name_arabic,
+            link: req_body.link,
+            tags: req_body.tags,
+            used_times: req_body.used_times,
+            last_used: req_body.last_used,
+            coupon: req_body.coupon,
+            description: req_body.description,
+            description_arabic: req_body.description_arabic,
+        }
+    })
+    .then((data1)=>{
+        res.status(200).json({
+            message: "Success"
+        });
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
 
 function fetch_store(req,res)
 {
@@ -314,6 +449,25 @@ function create_country(req,res)
     })
 }
 
+
+function update_country(req,res)
+{
+    var req_body = req.body;
+
+    country.findOneAndUpdate({name: req_body.name}, {$set:{name: req_body.new_name}})
+    .then((data1)=>{
+        res.status(200).json({
+            message: "Success"
+        });
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
 function fetch_country(req,res)
 {
     country.find({},{name:1, _id:0})
@@ -343,5 +497,5 @@ function fetch_users(req,res)
 
 module.exports = {
     create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, remove_country, create_country, fetch_country, fetch_all_store, fetch_all_deal,
-    fetch_users
+    fetch_users, update_country, update_store, update_deal, delete_banner, fetch_banner, create_carousel, fetch_carousel
 }

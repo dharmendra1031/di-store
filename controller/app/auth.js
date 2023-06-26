@@ -24,7 +24,8 @@ function fetch_profile(req,res)
             first_name: data1.first_name,
             last_name: data1.last_name,
             country: data1.country,
-            profile_image: data1.profile_image
+            profile_image: data1.profile_image,
+            notifications: data1.notifications
         }});
     })
     .catch((error)=>{
@@ -80,6 +81,41 @@ function fetch_referral_details(req,res)
     })
 }
 
+function update_notifications(req,res)
+{
+    var req_body = req.body;
+
+    user.findOneAndUpdate({_id:req.middleware.user_id}, {$set:{notifications: req_body.notifications}})
+    .then((data1)=>{
+        res.status(200).json({
+            message:"Success"
+        });
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function update_device_token(req,res)
+{
+    var req_body = req.body;
+
+    user.findOneAndUpdate({_id:req.middleware.user_id}, {$set:{device_token: req_body.device_token}})
+    .then((data1)=>{
+        res.status(200).json({
+            message:"Success"
+        });
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
 module.exports = {
-    fetch_profile, update_profile, fetch_referral_details
+    fetch_profile, update_profile, fetch_referral_details, update_notifications, update_device_token
 }

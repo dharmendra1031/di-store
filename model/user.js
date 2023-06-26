@@ -12,6 +12,8 @@ const user = mongoose.Schema({
     last_name: {type:String},
     password: {type:String},
     country: {type:String},
-    profile_image: {type:String, default:null}
+    profile_image: {type:String, default:null},
+    notifications:{type:Boolean, default:true},
+    device_token:{type:String}
 });
 module.exports = mongoose.model("user",user);

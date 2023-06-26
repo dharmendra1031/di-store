@@ -86,5 +86,7 @@ router.post('/upload-profile-image', function(req,res,next){
 router.get("/profile", controller_auth.fetch_profile);
 router.post("/update-profile", controller_auth.update_profile);
 router.get("/referral-details", controller_auth.fetch_referral_details);
+router.post("/update-notifications", controller_auth.update_notifications);
+router.post("/update-device-token", controller_auth.update_device_token);
 
 module.exports = router;

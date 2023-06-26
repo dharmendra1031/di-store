@@ -12,6 +12,9 @@ require('dotenv/config');
 const private_key  = fs.readFileSync(path.join(__dirname,'../../keys/private.key'), 'utf8');
 var syncLoop = require('sync-loop');
 const referral_storage = require("../../model/referral_storage");
+const categories = require("../../config/categories.json");
+const carousel = require("../../model/carousel");
+
 
 async function generate_token(user_id)
 {
@@ -37,6 +40,7 @@ async function generate_token(user_id)
         });       
     })
 }
+
 
 
 async function create_user(input)
@@ -324,24 +328,62 @@ function fetch_home(req,res)
 
     store.find(search)
     .sort({index:0})
+    .limit(parseInt(process.env.DEFAULT_PAGE_SIZE))
     .then((data1)=>{
-        var numberOfLoop = data1.length;
+        var stores_view_all = true;
 
-        syncLoop(numberOfLoop, function(loop1){
-            var index1 = loop1.iteration();
-            temp_store_ids.push((data1[index1]._id).toString());
-            loop1.next();
-        },function(){
+        store.countDocuments(search)
+        .then((count_stores)=>{
+            if(count_stores > parseInt(process.env.DEFAULT_PAGE_SIZE))
+            {
+                stores_view_all = true;
+            }
+            else
+            {
+                stores_view_all = false;
+            }
+            var numberOfLoop = data1.length;
 
-            deal.find({store:{$in:temp_store_ids}})
-            .sort({index:0})
-            .then((data2)=>{
-                res.status(200).json({message:"Success", stores:data1, deals:data2});
-            })
-            .catch((error)=>{
-                res.status(500).json({
-                    error:error
+            syncLoop(numberOfLoop, function(loop1){
+                var index1 = loop1.iteration();
+                temp_store_ids.push((data1[index1]._id).toString());
+                loop1.next();
+            },function(){
+    
+                deal.find({store:{$in:temp_store_ids}})
+                .sort({index:0})
+                .limit(parseInt(process.env.DEFAULT_PAGE_SIZE))
+                .then((data2)=>{
+    
+                    deal.countDocuments({store:{$in:temp_store_ids}})
+                    .then((count_deals)=>{
+                        if(count_deals > parseInt(process.env.DEFAULT_PAGE_SIZE))
+                        {
+                            res.status(200).json({message:"Success", stores:data1, stores_view_all:stores_view_all, deals:data2, deals_view_all:true});
+                        }
+                        else
+                        {
+                            res.status(200).json({message:"Success", stores:data1, stores_view_all:stores_view_all, deals:data2, deals_view_all:false});
+                        }
+                    })
+                    .catch((error)=>{
+                        res.status(500).json({
+                            error:error
+                        })
+                    })
+                   
                 })
+                .catch((error)=>{
+                    res.status(500).json({
+                        error:error
+                    })
+                })
+            })
+
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
             })
         })
     })
@@ -354,7 +396,8 @@ function fetch_home(req,res)
 
 function fetch_banner(req,res)
 {    
-    banner.findOne({type: "BANNER"})
+    banner.find()
+    .sort({index:0})
     .then((data1)=>{
         res.status(200).json({message:"Success", banner:data1});
     })
@@ -371,16 +414,49 @@ function fetch_brands(req,res)
     var req_body=req.query;
     var search = {country: req_body.country};
 
-    store.find(search)
-    .sort({index:0})
-    .then((data1)=>{ 
-        res.status(200).json({message:"Success", brands:data1});
-    })
-    .catch((error)=>{
-        res.status(500).json({
-            error:error
+    if(req.query.view_all = true)
+    {
+        store.find(search)
+        .sort({index:0})
+        .then((data1)=>{ 
+            res.status(200).json({message:"Success", brands:data1, stores_view_all:false});            
         })
-    })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    }
+    else
+    {
+        store.find(search)
+        .sort({index:0})
+        .limit(parseInt(process.env.DEFAULT_PAGE_SIZE))
+        .then((data1)=>{ 
+            store.countDocuments(search)
+            .then((count_stores)=>{
+                if(count_stores > parseInt(process.env.DEFAULT_PAGE_SIZE))
+                {
+                    res.status(200).json({message:"Success", brands:data1, stores_view_all:true});
+                }
+                else
+                {
+                    res.status(200).json({message:"Success", brands:data1, stores_view_all:false});
+                }
+            })
+            .catch((error)=>{
+                res.status(500).json({
+                    error:error
+                })
+            })
+            
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    }
 }
 
 function fetch_deals(req,res)
@@ -388,32 +464,83 @@ function fetch_deals(req,res)
     var search = {country: req.query.country};
     var temp_store_ids = [];
 
-    store.find(search)
-    .then((data1)=>{
-        var numberOfLoop = data1.length;
-
-        syncLoop(numberOfLoop, function(loop1){
-            var index1 = loop1.iteration();
-            temp_store_ids.push((data1[index1]._id).toString());
-            loop1.next();
-        },function(){
-            deal.find({store:{$in:temp_store_ids}})
-            .sort({index:0})
-            .then((data2)=>{
-                res.status(200).json({message:"Success", deals:data2});
-            })
-            .catch((error)=>{
-                res.status(500).json({
-                    error:error
+    if(req.query.view_all = true)
+    {
+        store.find(search)
+        .then((data1)=>{
+            var numberOfLoop = data1.length;
+    
+            syncLoop(numberOfLoop, function(loop1){
+                var index1 = loop1.iteration();
+                temp_store_ids.push((data1[index1]._id).toString());
+                loop1.next();
+            },function(){
+                deal.find({store:{$in:temp_store_ids}})
+                .sort({index:0})
+                .then((data2)=>{
+                    res.status(200).json({message:"Success", deals:data2, deals_view_all:false});
+                })
+                .catch((error)=>{
+                    res.status(500).json({
+                        error:error
+                    })
                 })
             })
         })
-    })
-    .catch((error)=>{
-        res.status(500).json({
-            error:error
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
         })
-    })
+    }
+    else
+    {
+        store.find(search)
+        .sort({index:0})
+        .limit(parseInt(process.env.DEFAULT_PAGE_SIZE))
+        .then((data1)=>{
+
+            var numberOfLoop = data1.length;
+            syncLoop(numberOfLoop, function(loop1){
+                var index1 = loop1.iteration();
+                temp_store_ids.push((data1[index1]._id).toString());                
+                loop1.next();
+                },function(){
+                    deal.find({store:{$in:temp_store_ids}})
+                    .sort({index:0})
+                    .limit(parseInt(process.env.DEFAULT_PAGE_SIZE))
+                    .then((data2)=>{
+        
+                        deal.countDocuments({store:{$in:temp_store_ids}})
+                        .then((count_deals)=>{
+                            if(count_deals > parseInt(process.env.DEFAULT_PAGE_SIZE))
+                            {
+                                res.status(200).json({message:"Success", deals:data2, deals_view_all:true});
+                            }
+                            else
+                            {
+                                res.status(200).json({message:"Success", deals:data2, deals_view_all:false});
+                            }
+                        })
+                        .catch((error)=>{
+                            res.status(500).json({
+                                error:error
+                        })
+                    })               
+                })
+                .catch((error)=>{
+                    res.status(500).json({
+                        error:error
+                    })
+                })
+            })
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    }
 }
 
 function fetch_file(req,res)
@@ -440,15 +567,49 @@ function fetch_store_deals(req,res)
 {
     var req_body=req.query;
     
-    deal.find({store: req_body.store})
-    .then((data1)=>{
-        res.status(200).json({message:"Success", deal:data1});
-    })
-    .catch((error)=>{
-        res.status(500).json({
-            error:error
+    if(req.query.view_all = true)
+    {
+        deal.find({store: req_body.store})
+        .sort({index:0})
+        .then((data1)=>{
+            res.status(200).json({message:"Success", deal:data1, deals_view_all:false});
         })
-    })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    }
+    else
+    {
+        deal.find({store: req_body.store})
+        .sort({index:0})
+        .limit(parseInt(process.env.DEFAULT_PAGE_SIZE))
+        .then((data1)=>{
+
+            deal.countDocuments({store: req_body.store})
+            .then((count_deals)=>{
+                if(count_deals > parseInt(process.env.DEFAULT_PAGE_SIZE))
+                {
+                    res.status(200).json({message:"Success", deal:data1, deals_view_all:true});
+                }
+                else
+                {
+                    res.status(200).json({message:"Success", deal:data1, deals_view_all:false});
+                }
+            })
+            .catch((error)=>{
+                res.status(500).json({
+                    error:error
+                })
+            })
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    }
 }
 
 function referral_link_clicked(req,res)
@@ -496,7 +657,28 @@ function referral_link_clicked(req,res)
     })
 }
 
+function fetch_categories(req,res)
+{
+    res.status(200).json({categories:categories});
+}
+
+
+function fetch_carousel(req,res)
+{
+    carousel.find()
+    .sort({index:0})
+    .then((data1)=>{
+        res.status(200).json({message:"Success", carousel:data1});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
 module.exports = {
     signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_store_deals,
-    referral_link_clicked
+    referral_link_clicked, fetch_categories, fetch_carousel
 }

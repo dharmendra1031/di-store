@@ -108,7 +108,7 @@ function upload_image(req,res)
 {
     if(req.response.status == 200)
     {
-        res.status(200).json({message:"Success", image_name: req.response.image_name});
+        res.status(200).json({message:"Success", image_name: process.env.READ_FILE_URL + req.response.image_name});
     }
     else
     {

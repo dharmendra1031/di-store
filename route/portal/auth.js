@@ -104,6 +104,20 @@ function upload_carousel(req,res)
     }
 }
 
+function upload_image(req,res)
+{
+    if(req.response.status == 200)
+    {
+        res.status(200).json({message:"Success", image_name: req.response.image_name});
+    }
+    else
+    {
+        res.status(req.response.status).json({
+            message:req.response.description
+        })
+    }
+}
+
 function upload_store_logo(req,res)
 {
     var req_body = req.body;
@@ -225,6 +239,11 @@ router.post('/upload-banner', function(req,res,next){
 router.post('/upload-carousel', function(req,res,next){
     next();
 }, upload_file, upload_carousel);
+
+
+router.post("/upload-image", function(req,res,next){
+    next();
+}, upload_file, upload_image);
 
 
 router.post("/create-deal", controller_auth.create_deal);

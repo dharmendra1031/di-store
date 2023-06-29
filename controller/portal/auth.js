@@ -30,7 +30,8 @@ function create_carousel(req,res)
         }
         const obj = carousel({
             header: req_body.header,
-            index: new_index
+            index: new_index,
+            images:req_body.images
         })
         obj.save()
         .then(()=>{
@@ -69,7 +70,7 @@ function update_carousel(req,res)
 {
     var req_body = req.body;
 
-    carousel.findOneAndUpdate({_id:req_body.carousel_id}, {$set:{header:req_body.header}})
+    carousel.findOneAndUpdate({_id:req_body.carousel_id}, {$set:{header:req_body.header, images:req_body.images}})
     .then((data1)=>{
         res.status(200).json({message:"Success"});
     })
@@ -148,7 +149,8 @@ function create_store(req,res)
             name_arabic: req_body.name_arabic,
             link: req_body.link,
             tags: req_body.tags,
-            index: new_index
+            index: new_index,
+            logo: req_body.logo
         })
         obj.save()
         .then((data)=>{
@@ -180,7 +182,8 @@ function update_store(req,res)
             name: req_body.name,
             name_arabic: req_body.name_arabic,
             link: req_body.link,
-            tags: req_body.tags
+            tags: req_body.tags,
+            logo: req_body.logo
         }
     })
     .then((data1)=>{
@@ -232,7 +235,8 @@ function create_deal(req,res)
                     coupon: req_body.coupon,
                     description: req_body.description,
                     description_arabic: req_body.description_arabic,
-                    index: new_index
+                    index: new_index,
+                    image: req_body.image
                 })
                 obj.save()
                 .then((data)=>{
@@ -276,6 +280,7 @@ function update_deal(req,res)
             coupon: req_body.coupon,
             description: req_body.description,
             description_arabic: req_body.description_arabic,
+            image: req_body.image
         }
     })
     .then((data1)=>{

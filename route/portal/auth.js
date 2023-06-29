@@ -144,6 +144,7 @@ function upload_store_logo(req,res)
 function upload_deal_image(req,res)
 {
     var req_body = req.body;
+    console.log(req_body);
     
     if(req.response.status == 200)
     {

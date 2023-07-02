@@ -491,6 +491,10 @@ function update_country(req,res)
 {
     var req_body = req.body;
 
+    res.status(200).json({
+        message: "Success"
+    });
+    /*
     country.findOneAndUpdate({name: req_body.name}, {$set:{name: req_body.new_name}})
     .then((data1)=>{
         res.status(200).json({
@@ -502,6 +506,7 @@ function update_country(req,res)
             error:error
         })
     })
+    */
 }
 
 

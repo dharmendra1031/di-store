@@ -6,7 +6,7 @@ const deal = mongoose.Schema({
     image: {type:String},
     description: {type:String},
     description_arabic: {type:String},
-    used_times: {type:Number},
+    used_times: {type:String},
     last_used: {type:String},
     coupon:{type:String},
     link: {type:String},

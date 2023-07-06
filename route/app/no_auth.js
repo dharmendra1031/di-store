@@ -17,5 +17,6 @@ router.get("/store/deals", controller_no_auth.fetch_store_deals);
 router.get("/refer/:referral_code", controller_no_auth.referral_link_clicked)
 router.get("/categories", controller_no_auth.fetch_categories);
 router.get("/carousel", controller_no_auth.fetch_carousel);
+//router.post("/test", controller_no_auth.test);
 
 module.exports = router;

@@ -122,26 +122,57 @@ function signup(req,res)
                 .then((refer_obj)=>{
                     common.generate_referral_code()
                     .then((referral_code)=>{
-                        create_user({
-                            country_code: null,
-                            phone_number: null,
-                            email: req_body.email,
-                            email_verified: false,
-                            phone_number_verified: false,
-                            referrer: refer_obj.user_id,
-                            referral_code: referral_code,
-                            referral_points: 0,
-                            first_name: req_body.first_name,
-                            last_name: req_body.last_name,
-                            password: req_body.password,
-                            country: req_body.country
-                        })
-                        .then((data)=>{
-                            res.status(200).json(data.response);
-                        })
-                        .catch((error)=>{
-                            res.status(error.status).json(error.response);
-                        })
+
+                        if(req_body.thirdparty == "GOOGLE")
+                        {
+                            create_user({
+                                country_code: null,
+                                phone_number: null,
+                                email: req_body.email,
+                                email_verified: false,
+                                phone_number_verified: false,
+                                thirdparty_verificaton: true,
+                                thirdparty: req_body.thirdparty,
+                                referrer: refer_obj.user_id,
+                                referral_code: referral_code,
+                                referral_points: 0,
+                                first_name: req_body.first_name,
+                                last_name: req_body.last_name,
+                                password: null,
+                                country: req_body.country
+                            })
+                            .then((data)=>{
+                                res.status(200).json(data.response);
+                            })
+                            .catch((error)=>{
+                                res.status(error.status).json(error.response);
+                            })
+                        }
+                        else
+                        {
+                            create_user({
+                                country_code: null,
+                                phone_number: null,
+                                email: req_body.email,
+                                email_verified: false,
+                                phone_number_verified: false,
+                                thirdparty_verificaton: false,
+                                thirdparty: null,
+                                referrer: refer_obj.user_id,
+                                referral_code: referral_code,
+                                referral_points: 0,
+                                first_name: req_body.first_name,
+                                last_name: req_body.last_name,
+                                password: req_body.password,
+                                country: req_body.country
+                            })
+                            .then((data)=>{
+                                res.status(200).json(data.response);
+                            })
+                            .catch((error)=>{
+                                res.status(error.status).json(error.response);
+                            })
+                        }
                     })
                     .catch((error)=>{
                         res.status(500).json({
@@ -236,6 +267,7 @@ function signup(req,res)
     }
 }
 
+
 function login(req,res)
 {
     var req_body = req.body;
@@ -252,7 +284,7 @@ function login(req,res)
             }
             else
             {
-                if(data1.password == req_body.password)
+                if(req_body.thirdparty == "GOOGLE")
                 {
                     generate_token(data1._id)
                     .then((token)=>{
@@ -267,9 +299,25 @@ function login(req,res)
                 }
                 else
                 {
-                    res.status(400).json({
-                        message:"Entered password is incorrect"
-                    })
+                    if(data1.password == req_body.password)
+                    {
+                        generate_token(data1._id)
+                        .then((token)=>{
+                            res.status(200).json({
+                                token:token,
+                                user_id: data1._id
+                            })
+                        })
+                        .catch((error)=>{
+                            res.status(error.status).json(error.response);
+                        })
+                    }
+                    else
+                    {
+                        res.status(400).json({
+                            message:"Entered password is incorrect"
+                        })
+                    }
                 }
             }
         })
@@ -678,7 +726,60 @@ function fetch_carousel(req,res)
 }
 
 
+
+var request = require('request');
+/*
+async function send_otp()
+{
+    return new Promise((resolve,reject)=>{
+        var options = {
+            'method': 'POST',
+            'url': 'https://api.brevo.com/v3/smtp/email',
+            'headers': {
+                "api-key":"D8dPOJgxA4qMszRW"
+            },
+            body: {
+                sender:{  
+                "name":"Sender Alex",
+                "email":"senderalex@example.com"
+             },
+             "to":[  
+                {  
+                   "email":"testmail@example.com",
+                   "name":"John Doe"
+                }
+             ],
+             "subject":"Hello world",
+             "htmlContent":"<html><head></head><body><p>Hello,</p>This is my first transactional email sent from Brevo.</p></body></html>"
+            }
+          };
+          request(options, function (error, response) {
+            console.log(error);
+            console.log(response.body);
+          });
+    })
+}
+
+*/
+
+/*
+function test(req,res)
+{
+    send_otp()
+    .then(()=>{
+        res.status(200).json({message:"Success"});
+    })
+    .catch((error)=>{
+        console.log(error);
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+*/
+
 module.exports = {
     signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_store_deals,
-    referral_link_clicked, fetch_categories, fetch_carousel
+    referral_link_clicked, fetch_categories, fetch_carousel//, test
 }

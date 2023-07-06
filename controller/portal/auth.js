@@ -31,7 +31,7 @@ function create_carousel(req,res)
         const obj = carousel({
             header: req_body.header,
             index: new_index,
-            images:req_body.images
+            images: req_body.images
         })
         obj.save()
         .then(()=>{
@@ -88,6 +88,49 @@ function fetch_carousel(req,res)
     .sort({index:0})
     .then((data1)=>{
         res.status(200).json({message:"Success", carousel:data1});
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
+function create_banner(req,res)
+{
+    var req_body = req.body;
+
+    banner.aggregate([
+        {$group:{_id:null, max_index:{$max:"$index"}}}
+    ])
+    .then((data1)=>{
+        var new_index = 1;
+        if(data1.length == 0)
+        {
+            new_index = 1;
+        }
+        else
+        {
+            new_index = data1[0].max_index + 1;
+        }
+
+        const obj = new banner({
+            index: new_index,
+            image: req_body.image,
+            store: req_body.store
+        })
+        obj.save()
+        .then(()=>{
+            res.status(200).json({
+                message:"Success"
+            });
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
     })
     .catch((error)=>{
         res.status(500).json({
@@ -540,5 +583,5 @@ function fetch_users(req,res)
 module.exports = {
     create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, remove_country, create_country, fetch_country, fetch_all_store, fetch_all_deal,
     fetch_users, update_country, update_store, update_deal, delete_banner, fetch_banner, create_carousel, fetch_carousel, update_carousel,
-    delete_carousel
+    delete_carousel, create_banner
 }

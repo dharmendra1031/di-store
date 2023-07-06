@@ -5,6 +5,8 @@ const user = mongoose.Schema({
     referral_code: {type:String},
     referral_points:{type:Number, default:0},
     email_verified: {type:Boolean, default:false},
+    thirdparty_verificaton:{type:Boolean, default:false},
+    thirdparty:{type:String, default:null},
     phone_number: {type:String},
     country_code: {type:String},
     phone_number_verified: {type:Boolean, default:false},

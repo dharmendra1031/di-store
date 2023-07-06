@@ -261,6 +261,7 @@ router.get("/users", controller_auth.fetch_users);
 router.post("/update-country", controller_auth.update_country);
 router.post("/update-store", controller_auth.update_store);
 router.post("/update-deal", controller_auth.update_deal);
+router.post("/create-banner", controller_auth.create_banner);
 router.get("/banner", controller_auth.fetch_banner);
 router.get("/delete/banner", controller_auth.delete_banner);
 router.post("/create-carousel", controller_auth.create_carousel);

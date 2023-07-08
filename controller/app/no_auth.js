@@ -15,6 +15,31 @@ const referral_storage = require("../../model/referral_storage");
 const categories = require("../../config/categories.json");
 const carousel = require("../../model/carousel");
 
+var SibApiV3Sdk = require('sib-api-v3-sdk');
+var defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+// Configure API key authorization: api-key
+var apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = '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';
+
+var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
+
+sendSmtpEmail = {
+    to: [{
+        email: 'parasgulati150@gmail.com',
+        name: 'John Doe'
+    }],
+    templateId: 59,
+    params: {
+        name: 'John',
+        surname: 'Doe'
+    },
+    headers: {
+        'X-Mailin-custom': 'custom_header_1:custom_value_1|custom_header_2:custom_value_2'
+    }
+};
 
 async function generate_token(user_id)
 {
@@ -444,7 +469,7 @@ function fetch_home(req,res)
 
 function fetch_banner(req,res)
 {    
-    banner.find()
+    banner.find({country:req.query.country})
     .sort({index:0})
     .then((data1)=>{
         res.status(200).json({message:"Success", banner:data1});
@@ -713,7 +738,7 @@ function fetch_categories(req,res)
 
 function fetch_carousel(req,res)
 {
-    carousel.find()
+    carousel.find({country:req.query.country})
     .sort({index:0})
     .then((data1)=>{
         res.status(200).json({message:"Success", carousel:data1});
@@ -726,43 +751,26 @@ function fetch_carousel(req,res)
 }
 
 
-
-var request = require('request');
 /*
+
 async function send_otp()
 {
     return new Promise((resolve,reject)=>{
-        var options = {
-            'method': 'POST',
-            'url': 'https://api.brevo.com/v3/smtp/email',
-            'headers': {
-                "api-key":"D8dPOJgxA4qMszRW"
-            },
-            body: {
-                sender:{  
-                "name":"Sender Alex",
-                "email":"senderalex@example.com"
-             },
-             "to":[  
-                {  
-                   "email":"testmail@example.com",
-                   "name":"John Doe"
-                }
-             ],
-             "subject":"Hello world",
-             "htmlContent":"<html><head></head><body><p>Hello,</p>This is my first transactional email sent from Brevo.</p></body></html>"
-            }
-          };
-          request(options, function (error, response) {
-            console.log(error);
-            console.log(response.body);
-          });
+      
+        apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data) {
+            console.log('API called successfully. Returned data: ' + data);
+            console.log(data);
+            resolve();
+
+        }, function(error) {
+            console.error(error);
+            reject();
+        });
+        
+   
     })
 }
 
-*/
-
-/*
 function test(req,res)
 {
     send_otp()
@@ -776,8 +784,8 @@ function test(req,res)
         })
     })
 }
-
 */
+
 
 module.exports = {
     signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_store_deals,

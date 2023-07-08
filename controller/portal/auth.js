@@ -16,6 +16,7 @@ function create_carousel(req,res)
     var req_body = req.body;
 
     carousel.aggregate([
+        {$match:{country: req_body.country}},
         {$group:{_id:null, max_index:{$max:"$index"}}}
     ])
     .then((data1)=>{
@@ -31,6 +32,7 @@ function create_carousel(req,res)
         const obj = carousel({
             header: req_body.header,
             index: new_index,
+            country: req_body.country,
             images: req_body.images
         })
         obj.save()
@@ -70,7 +72,7 @@ function update_carousel(req,res)
 {
     var req_body = req.body;
 
-    carousel.findOneAndUpdate({_id:req_body.carousel_id}, {$set:{header:req_body.header, images:req_body.images}})
+    carousel.findOneAndUpdate({_id:req_body.carousel_id}, {$set:{header:req_body.header, images:req_body.images, country:req_body.country}})
     .then((data1)=>{
         res.status(200).json({message:"Success"});
     })
@@ -102,6 +104,7 @@ function create_banner(req,res)
     var req_body = req.body;
 
     banner.aggregate([
+        {$match:{country: req_body.country}},
         {$group:{_id:null, max_index:{$max:"$index"}}}
     ])
     .then((data1)=>{
@@ -118,6 +121,7 @@ function create_banner(req,res)
         const obj = new banner({
             index: new_index,
             image: req_body.image,
+            country: req_body.country,
             store: req_body.store
         })
         obj.save()

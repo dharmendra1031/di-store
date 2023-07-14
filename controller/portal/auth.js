@@ -89,7 +89,43 @@ function fetch_carousel(req,res)
     carousel.find()
     .sort({index:0})
     .then((data1)=>{
-        res.status(200).json({message:"Success", carousel:data1});
+        var carousels = [];
+        var numberOfLoop1 = data1.length;
+
+        syncLoop(numberOfLoop1, function(loop1){
+            var index1 = loop1.iteration();
+            var images = [];
+
+            var numberOfLoop2 = data1[index1].images.length;
+            syncLoop(numberOfLoop2, function(loop2){
+                var index2 = loop2.iteration();
+
+                store.findOne({_id:data1[index1].images[index2].store})
+                .then((data2)=>{
+                    images.push({
+                        link: data1[index1].images[index2].link,
+                        store: data1[index1].images[index2].store,
+                        store_name: data2.name
+                    });
+                    loop2.next();
+                })
+                .catch((error)=>{
+                    res.status(500).json({
+                        error:error
+                    })
+                })
+            },function(){
+                carousels.push({
+                    _id: data1[index1]._id,
+                    images: images,
+                    header:  data1[index1].header,
+                    index:  data1[index1].index
+                })
+                loop1.next();
+            })
+        },function(){
+            res.status(200).json({message:"Success", carousel:carousels});
+        })
     })
     .catch((error)=>{
         res.status(500).json({
@@ -149,7 +185,32 @@ function fetch_banner(req,res)
     banner.find()
     .sort({index:0})
     .then((data1)=>{
-        res.status(200).json({message:"Success", banner:data1});
+        var numberOfLoop1 = data1.length;
+        var banners = [];
+
+        syncLoop(numberOfLoop1, function(loop1){
+            var index1 = loop1.iteration();
+        
+            store.findOne({_id:data1[index1].store})
+            .then((data2)=>{
+                banners.push({
+                    _id: data1[index1]._id,
+                    image: data1[index1].image,
+                    index: data1[index1].index,
+                    store: data1[index1].store,
+                    store_name: data2.name
+                });
+                loop1.next();
+            })
+            .catch((error)=>{
+                console.log(error);
+                res.status(500).json({
+                    error:error
+                })
+            })
+        },function(){
+            res.status(200).json({message:"Success", banner:banners});
+        })
     })
     .catch((error)=>{
         res.status(500).json({

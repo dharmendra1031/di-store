@@ -187,20 +187,28 @@ function fetch_banner(req,res)
     .then((data1)=>{
         var numberOfLoop1 = data1.length;
         var banners = [];
-
+        console.log(data1);
         syncLoop(numberOfLoop1, function(loop1){
             var index1 = loop1.iteration();
         
             store.findOne({_id:data1[index1].store})
             .then((data2)=>{
-                banners.push({
-                    _id: data1[index1]._id,
-                    image: data1[index1].image,
-                    index: data1[index1].index,
-                    store: data1[index1].store,
-                    store_name: data2.name
-                });
-                loop1.next();
+                if(data2 != null)
+                {
+                    banners.push({
+                        _id: data1[index1]._id,
+                        image: data1[index1].image,
+                        index: data1[index1].index,
+                        store: data1[index1].store,
+                        store_name: data2.name,
+                        country: data1[index1].country
+                    });
+                    loop1.next();
+                }
+                else
+                {
+                    loop1.next();
+                }
             })
             .catch((error)=>{
                 console.log(error);
@@ -213,6 +221,7 @@ function fetch_banner(req,res)
         })
     })
     .catch((error)=>{
+        console.log(error);
         res.status(500).json({
             error:error
         })

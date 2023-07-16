@@ -3,6 +3,7 @@ const deal = require("../../model/deal");
 const country = require("../../model/country");
 const banner = require("../../model/banner");
 const carousel = require("../../model/carousel");
+const categories = require("../../model/categories");
 
 var syncLoop = require('sync-loop');
 var fs = require('fs');
@@ -10,6 +11,101 @@ var path = require("path");
 const user = require("../../model/user");
 
 require('dotenv/config');
+
+function create_category(req,res)
+{
+    var req_body = req.body;
+
+    categories.aggregate([
+        {$group:{_id:null, max_index:{$max:"$index"}}}
+    ])
+    .then((data1)=>{
+        var new_index = 1;
+        if(data1.length == 0)
+        {
+            new_index = 1;
+        }
+        else
+        {
+            new_index = data1[0].max_index + 1;
+        }
+        const obj = categories({
+            name: req_body.name,
+            index: new_index
+        })
+        obj.save()
+        .then(()=>{
+            res.status(200).json({message:"Success"});
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error:error
+            })
+        })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function update_category(req,res)
+{
+    var req_body = req.body;
+
+    categories.findOneAndUpdate({_id:req_body.category_id}, {$set:{name: req_body.name}})
+    .then((data)=>{
+        if(data == null)
+        {
+            res.status(404).json({message:"Category does not exists"});
+        }
+        else
+        {
+            res.status(200).json({message:"Success"});
+        }
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function delete_category(req,res)
+{
+    var req_body = req.body;
+
+    categories.findOneAndDelete({_id:req_body.category_id})
+    .then((data)=>{
+        if(data == null)
+        {
+            res.status(404).json({message:"Category does not exists"});
+        }
+        else
+        {
+            res.status(200).json({message:"Success"});
+        }
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+function fetch_category(req,res)
+{
+    categories.find({})
+    .then((data)=>{
+        res.status(200).json({message:"Success", categories:data});    
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
+}
 
 function create_carousel(req,res)
 {
@@ -657,5 +753,5 @@ function fetch_users(req,res)
 module.exports = {
     create_store, create_deal, fetch_store, fetch_deal, remove_store, remove_deal, remove_country, create_country, fetch_country, fetch_all_store, fetch_all_deal,
     fetch_users, update_country, update_store, update_deal, delete_banner, fetch_banner, create_carousel, fetch_carousel, update_carousel,
-    delete_carousel, create_banner
+    delete_carousel, create_banner, delete_category, create_category, update_category, fetch_category
 }

@@ -12,7 +12,8 @@ require('dotenv/config');
 const private_key  = fs.readFileSync(path.join(__dirname,'../../keys/private.key'), 'utf8');
 var syncLoop = require('sync-loop');
 const referral_storage = require("../../model/referral_storage");
-const categories = require("../../config/categories.json");
+const categories = require("../../model/categories");
+
 const carousel = require("../../model/carousel");
 
 var SibApiV3Sdk = require('sib-api-v3-sdk');
@@ -732,7 +733,23 @@ function referral_link_clicked(req,res)
 
 function fetch_categories(req,res)
 {
-    res.status(200).json({categories:categories});
+    categories.find()
+    .sort({index:0})
+    .then((data)=>{
+        var result = [];
+        syncLoop(data.length, function(loop1){
+            var index1 = loop1.iteration();
+            result.push(data[index1].name);
+            loop1.next();
+        },function(){
+            res.status(200).json({categories:result});
+        })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            error:error
+        })
+    })
 }
 
 

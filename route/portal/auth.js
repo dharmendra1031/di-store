@@ -269,4 +269,9 @@ router.post("/delete-carousel", controller_auth.delete_carousel);
 router.post("/update-carousel", controller_auth.update_carousel);
 router.get("/carousel", controller_auth.fetch_carousel);
 
+router.post("/category/create", controller_auth.create_category);
+router.post("/category/update", controller_auth.update_category);
+router.post("/category/delete", controller_auth.delete_category);
+router.get("/category/fetch", controller_auth.fetch_category);
+
 module.exports = router;

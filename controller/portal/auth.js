@@ -31,6 +31,7 @@ function create_category(req,res)
         }
         const obj = categories({
             name: req_body.name,
+            name_arabic: req_body.name_arabic,
             index: new_index
         })
         obj.save()
@@ -54,7 +55,7 @@ function update_category(req,res)
 {
     var req_body = req.body;
 
-    categories.findOneAndUpdate({_id:req_body.category_id}, {$set:{name: req_body.name}})
+    categories.findOneAndUpdate({_id:req_body.category_id}, {$set:{name: req_body.name, name_arabic: req_body.name_arabic,}})
     .then((data)=>{
         if(data == null)
         {

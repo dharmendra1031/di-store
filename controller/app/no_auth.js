@@ -739,7 +739,7 @@ function fetch_categories(req,res)
         var result = [];
         syncLoop(data.length, function(loop1){
             var index1 = loop1.iteration();
-            result.push(data[index1].name);
+            result.push({name: data[index1].name, name_arabic: data[index1].name_arabic});
             loop1.next();
         },function(){
             res.status(200).json({categories:result});

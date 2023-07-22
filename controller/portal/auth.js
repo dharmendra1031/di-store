@@ -128,6 +128,7 @@ function create_carousel(req,res)
         }
         const obj = carousel({
             header: req_body.header,
+            header_arabic: req_body.header_arabic,
             index: new_index,
             country: req_body.country,
             images: req_body.images
@@ -169,7 +170,7 @@ function update_carousel(req,res)
 {
     var req_body = req.body;
 
-    carousel.findOneAndUpdate({_id:req_body.carousel_id}, {$set:{header:req_body.header, images:req_body.images, country:req_body.country}})
+    carousel.findOneAndUpdate({_id:req_body.carousel_id}, {$set:{header:req_body.header, header_arabic: req_body.header_arabic, images:req_body.images, country:req_body.country}})
     .then((data1)=>{
         res.status(200).json({message:"Success"});
     })
@@ -216,6 +217,7 @@ function fetch_carousel(req,res)
                     _id: data1[index1]._id,
                     images: images,
                     header:  data1[index1].header,
+                    header_arabic: data1[index1].header_arabic,
                     index:  data1[index1].index
                 })
                 loop1.next();

@@ -344,6 +344,7 @@ function delete_banner(req,res)
 function create_store(req,res)
 {
     var req_body=req.body;
+    /*
     store.aggregate([
         {$match:{country:req_body.country}},
         {$group:{_id:null, max_index:{$max:"$index"}}}
@@ -358,14 +359,14 @@ function create_store(req,res)
         {
             new_index = data1[0].max_index + 1;
         }
-        
+    */    
         const obj = new store({
             country: req_body.country,
             name: req_body.name,
             name_arabic: req_body.name_arabic,
             link: req_body.link,
             tags: req_body.tags,
-            index: new_index,
+            index: req_body.index,
             logo: req_body.logo
         })
         obj.save()
@@ -380,12 +381,12 @@ function create_store(req,res)
                 error:error
             })
         })
-    })
+    /*})
     .catch((error)=>{
         res.status(500).json({
             error:error
         })
-    })
+    })*/
 }
 
 function update_store(req,res)
@@ -399,6 +400,7 @@ function update_store(req,res)
             name_arabic: req_body.name_arabic,
             link: req_body.link,
             tags: req_body.tags,
+            index: req_body.index,
             logo: req_body.logo
         }
     })
@@ -426,6 +428,7 @@ function create_deal(req,res)
         }
         else
         {
+            /*
             deal.aggregate([
                 {$match:{store: req_body.store}},
                 {$group:{_id:null, max_index:{$max:"$index"}}}
@@ -440,6 +443,7 @@ function create_deal(req,res)
                 {
                     new_index = data2[0].max_index + 1;
                 }
+                */
                 const obj = new deal({
                     store: req_body.store,
                     name: req_body.name,
@@ -451,7 +455,7 @@ function create_deal(req,res)
                     coupon: req_body.coupon,
                     description: req_body.description,
                     description_arabic: req_body.description_arabic,
-                    index: new_index,
+                    index: req_body.index,
                     image: req_body.image
                 })
                 obj.save()
@@ -466,12 +470,13 @@ function create_deal(req,res)
                         error:error
                     })
                 })
+                /*
             })
             .catch((error)=>{
                 res.status(500).json({
                     error:error
                 })
-            })
+            })*/
         }
     })
     .catch((error)=>{
@@ -494,6 +499,7 @@ function update_deal(req,res)
             used_times: req_body.used_times,
             last_used: req_body.last_used,
             coupon: req_body.coupon,
+            index: req_body.index,
             description: req_body.description,
             description_arabic: req_body.description_arabic,
             image: req_body.image

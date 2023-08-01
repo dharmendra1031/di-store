@@ -4,7 +4,7 @@ const deal = require("../../model/deal");
 const country = require("../../model/country");
 const banner = require("../../model/banner");
 const common = require("../../common");
-const contectUs=require("../../model/contectUs");
+
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
 var path = require("path");

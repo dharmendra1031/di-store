@@ -4,7 +4,7 @@ const deal = require("../../model/deal");
 const country = require("../../model/country");
 const banner = require("../../model/banner");
 const common = require("../../common");
-
+const contectUs=require("../../model/contectUs");
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
 var path = require("path");
@@ -34,7 +34,7 @@ sendSmtpEmail = {
     }],
     templateId: 59,
     params: {
-        name: 'John',
+        name: 'John', 
         surname: 'Doe'
     },
     headers: {
@@ -803,8 +803,30 @@ function test(req,res)
 }
 */
 
+function contect_us(req,res){
+    var req_body = req.body;
+    var obj = 
+         "Name: " +req_body.name + "<br>"+"Email:"+ req_body.email+ "<br>"+ "Mobile:"+ req_body.mobile +"<br>"+"Title:" + req_body.title + "<br>"+     "Message:"+ req_body.message;
+    
+   common.send_email(process.env.SEND_GRID_FROM_EMAIL,req_body.title,obj).then((data)=>{
+        res.status(200).json({
+            message: "Success",
+            store: data
+        });
+
+    })
+    .catch((error)=>{
+        console.log(error)
+        res.status(500).json({
+            error:error
+        })
+    })
+}
+
+
+
 
 module.exports = {
     signup, login, fetch_home, fetch_brands, fetch_deals, fetch_file, fetch_country, fetch_banner, fetch_store_deals,
-    referral_link_clicked, fetch_categories, fetch_carousel//, test
+    referral_link_clicked, fetch_categories, fetch_carousel, contect_us//, test
 }

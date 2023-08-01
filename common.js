@@ -3,23 +3,23 @@ require('dotenv/config');
 const generateUniqueId = require('generate-unique-id');
 
 
-sg_mail.setApiKey(process.env.SEND_GRID_APIKEY);
+sg_mail.setApiKey(process.env.SENDGRID_API);
 
 
 async function send_email(email, subject, message)
 {
     return new Promise((resolve,reject)=>{
         const msg = {
-            to: email, 
-            from: process.env.SEND_GRID_EMAIL,
+            to: process.env.SEND_GRID_TO_EMAIL, 
+            from: process.env.SEND_GRID_FROM_EMAIL,
             subject: subject,
             text: 'Code Lab',
             html: message,
         }
-        console.log(msg);
+        // console.log(msg);
         sg_mail.send(msg)
         .then((data) => {
-            console.log(data);
+            // console.log(data);
             resolve();
         })
         .catch((error) => {

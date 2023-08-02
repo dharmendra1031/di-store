@@ -19,7 +19,7 @@ async function send_email(email, subject, message)
         // console.log(msg);
         sg_mail.send(msg)
         .then((data) => {
-            // console.log(data);
+             console.log(data);
             resolve();
         })
         .catch((error) => {

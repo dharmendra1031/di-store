@@ -155,7 +155,7 @@ function signup(req,res)
                                 country_code: null,
                                 phone_number: null,
                                 email: req_body.email,
-                                email_verified: false,
+                                email_verified: true,
                                 phone_number_verified: false,
                                 thirdparty_verificaton: true,
                                 thirdparty: req_body.thirdparty,

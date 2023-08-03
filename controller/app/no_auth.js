@@ -310,18 +310,25 @@ function login(req,res)
             }
             else
             {
-                if(req_body.thirdparty == "GOOGLE")
+                if(req_body.thirdparty == "GOOGLE" )
                 {
-                    generate_token(data1._id)
-                    .then((token)=>{
-                        res.status(200).json({
-                            token:token,
-                            user_id: data1._id
+                    if(data1.thirdparty !=null){
+                        generate_token(data1._id)
+                        .then((token)=>{
+                            res.status(200).json({
+                                token:token,
+                                user_id: data1._id
+                            })
                         })
-                    })
-                    .catch((error)=>{
-                        res.status(error.status).json(error.response);
-                    })
+                        .catch((error)=>{
+                            res.status(error.status).json(error.response);
+                        })
+                    }else{
+                        res.status(400).json({
+                            message:"Please login with email and password."
+                        })
+                    }
+                  
                 }
                 else
                 {

@@ -11,7 +11,7 @@ async function send_email(email, subject, message)
     return new Promise((resolve,reject)=>{
         const msg = {
             to: process.env.SEND_GRID_TO_EMAIL, 
-            from: process.env.SEND_GRID_FROM_EMAIL,
+            from: process.env.SEND_GRID_FROM_EMAIL2,
             subject: subject,
             text: 'Code Lab',
             html: message,

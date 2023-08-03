@@ -6,8 +6,9 @@ var jwt = require('jsonwebtoken');
 var fs = require('fs');
 var path = require("path");
 require('dotenv/config');
-
+var common = require("../../common")
 var syncLoop = require('sync-loop');
+const otp_buffer = require("../../model/otp_buffer");
 
 
 
@@ -115,7 +116,139 @@ function update_device_token(req,res)
     })
 }
 
+function send_email_otp(req,res)
+{
+    const req_body = req.body;
+   
+    user.findOne({email:req_body.email},function(err1,data1){
+        if(err1)
+        {
+            res.json({
+                status: 500,
+                message: "Server Error"
+            });
+        }
+        else if(data1==null)
+        {
+            res.json({
+                status: 400,
+                message: "Entered Email is not Registered"
+            });
+        }
+        else
+        {
+            
+                common.generate_otp().
+                then((otp)=>{
+                    common.send_otp_email(req_body.email,otp).
+                    then(()=>
+                    {
+                        otp_buffer.findOneAndDelete({secret_id:data1._id},function (err2,data2){
+                        
+                            if(err2)
+                            {
+                                res.json({
+                                    status: 500,
+                                    message: "Server Error"
+                                });
+                            }
+                            else
+                            {
+                                const obj = new otp_buffer({
+                                    secret_id: data1._id,
+                                    otp: otp,
+                                    created_time: new Date()
+                                });         
+                                obj.save(function(err3,data3){
+                                    if(err3)
+                                    {
+                                        res.json({
+                                            status: 500,
+                                            message: "Server Error"
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.json({
+                                            status: 200,
+                                            message: "OTP Sent for Email Verification",
+                                            session_id: data3._id
+                                        });
+                                    }
+                                })
+                            }
+                        })
+                    })
+                }
+                )
 
+            
+        }
+        }
+        );
+
+
+   
+
+}
+
+function otp_verification_email(req,res)
+{
+    var req_body = req.body;
+    otp_buffer.findOne({_id:req_body.session_id},function(err1,data1){
+        if(err1)
+        {
+            res.json({
+                status: 500,
+                message: "Server Error"
+            });
+        }
+        else if(data1 == null)
+        {
+            res.json({
+                status: 400,
+                message: "Session Expired, Please Retry"
+            });
+        }
+        else
+        {
+            if(data1.otp == req_body.otp)
+            {
+            user.findOneAndUpdate({_id:data1.secret_id},{ email_verified:true}, function(err2,data2){
+              
+                    if(err2)
+                    {
+                        res.json({
+                            status: 500,
+                            message: "Server Error"
+                        });
+                    }
+                    else 
+                    {
+                        res.json({
+                            status: 200,
+                            message: "Account Verify Successful"
+                        });
+                    }
+            }).then((data)=>{
+                otp_buffer.findOneAndDelete({_id:req_body.session_id},);
+            })
+            .catch((err)=>{
+                res.json({
+                    status: 500,
+                    message: "Server Error"
+                });
+            });
+            }
+            else{
+                res.json({
+                    status: 400,
+                    message: "OTP is Wrong."
+                });
+            }
+        }
+    });
+}
 module.exports = {
-    fetch_profile, update_profile, fetch_referral_details, update_notifications, update_device_token
+    fetch_profile, update_profile, fetch_referral_details, update_notifications, update_device_token,send_email_otp,otp_verification_email
 }

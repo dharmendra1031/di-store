@@ -88,5 +88,6 @@ router.post("/update-profile", controller_auth.update_profile);
 router.get("/referral-details", controller_auth.fetch_referral_details);
 router.post("/update-notifications", controller_auth.update_notifications);
 router.post("/update-device-token", controller_auth.update_device_token);
+router.post("/send-email-otp", controller_auth.send_email_otp);router.post("/verify-email-otp", controller_auth.otp_verification_email);
 
 module.exports = router;

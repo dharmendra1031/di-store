@@ -230,14 +230,6 @@ function otp_verification_email(req,res)
                             message: "Account Verify Successful"
                         });
                     }
-            }).then((data)=>{
-                otp_buffer.findOneAndDelete({_id:req_body.session_id},);
-            })
-            .catch((err)=>{
-                res.json({
-                    status: 500,
-                    message: "Server Error"
-                });
             });
             }
             else{

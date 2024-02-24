@@ -406,7 +406,7 @@ function fetch_home(req,res)
 {
     var search = {country: req.query.country};
     var temp_store_ids = [];
-
+   console.log("Fatch Home")
     store.find(search)
     .sort({index:0})
     .limit(parseInt(process.env.DEFAULT_PAGE_SIZE))
